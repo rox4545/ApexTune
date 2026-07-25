@@ -1,6 +1,6 @@
 # ApexTune — an MCP server that gives AI assistants real control over Windows PC performance
 
-> ApexTune connects an AI assistant directly to your Windows system's CPU, RAM, GPU, disk, network, startup apps, and power settings — turning vague requests like "my PC feels slow" into real diagnosis and real fixes.
+> This project is a PC Optimization tool. It is designed to run locally on the user's computer via NitroStack Studio (STDIO transport) to inspect and optimize local system resources (CPU, RAM, disk, processes). The NitroCloud deployment serves as the hosted endpoint fallback.
 
 ![Model Context Protocol](https://img.shields.io/badge/Model%20Context%20Protocol-MCP-blue) ![Built with Nitrostack](https://img.shields.io/badge/Built%20with-Nitrostack-0A66FF) ![Platform](https://img.shields.io/badge/platform-Windows-0078D6) ![Status](https://img.shields.io/badge/status-hackathon%20build-orange)
 
