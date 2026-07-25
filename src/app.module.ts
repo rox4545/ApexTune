@@ -1,10 +1,10 @@
 import { McpApp, Module } from '@nitrostack/core';
-import { SystemTools } from './system.tools';
-import { StartupTools } from './startup.tools';
-import { CleanupTools } from './cleanup.tools';
-import { NetworkTools } from './network.tools';
-import { BoostTools } from './boost.tools';
-import { PromptsController } from './prompts.tools';
+import { SystemTools } from './system.tools.js';
+import { StartupTools } from './startup.tools.js';
+import { CleanupTools } from './cleanup.tools.js';
+import { NetworkTools } from './network.tools.js';
+import { BoostTools } from './boost.tools.js';
+import { PromptsController } from './prompts.tools.js';
 @McpApp({
   module: AppModule,
   server: { name: 'apextune-server', version: '1.0.0' }
