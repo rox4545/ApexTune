@@ -53,8 +53,36 @@ export class CleanupTools {
       return { preview: true, message: 'This will permanently empty the Recycle Bin — files will not be recoverable. Call again with confirm:true to proceed.' };
     }
     try {
-      await execAsync(`powershell -Command "Clear-RecycleBin -Force -ErrorAction SilentlyContinue"`);
-      return { message: 'Recycle Bin emptied.' };
+      const script = `
+        $ErrorActionPreference = 'Stop'
+        try {
+          $shell = New-Object -ComObject Shell.Application
+          $bin = $shell.Namespace(0xA)
+          $count = $bin.Items().Count
+          if ($count -eq 0) {
+            Write-Output 'EMPTY'
+          } else {
+            Clear-RecycleBin -Force -Confirm:$false
+            Write-Output "CLEARED:$count"
+          }
+        } catch {
+          Write-Output "ERROR:$($_.Exception.Message)"
+        }
+      `.replace(/\r?\n/g, ' ');
+      const { stdout } = await execAsync(`powershell -Command "${script.replace(/"/g, '\\"')}"`);
+      const result = stdout.trim();
+
+      if (result === 'EMPTY') {
+        return { message: 'Recycle Bin was already empty — nothing to do.' };
+      }
+      if (result.startsWith('CLEARED')) {
+        const count = result.split(':')[1] ?? 'some';
+        return { message: `Recycle Bin emptied (${count} item(s) removed).` };
+      }
+      if (result.startsWith('ERROR')) {
+        return { message: `Could not empty Recycle Bin: ${result.replace('ERROR:', '').trim()}` };
+      }
+      return { message: 'Recycle Bin cleanup ran, but the result was unclear.' };
     } catch (error) {
       return { message: 'Could not empty Recycle Bin.' };
     }

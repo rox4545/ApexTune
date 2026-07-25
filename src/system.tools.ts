@@ -36,7 +36,7 @@ export class SystemTools {
       cores: info.cores,
       speedGHz: info.speed,
       loadPercent: load.currentLoad.toFixed(1),
-      temperatureC: temp.main ?? 'unavailable'
+      temperatureC: temp.main ?? 'unavailable (install LibreHardwareMonitor for live temps)'
     };
   }
 
@@ -52,7 +52,7 @@ export class SystemTools {
         model: g.model,
         vramMB: g.vram,
         loadPercent: g.utilizationGpu ?? 'unavailable',
-        temperatureC: g.temperatureGpu ?? 'unavailable'
+        temperatureC: g.temperatureGpu ?? 'unavailable (install LibreHardwareMonitor for live temps)'
       }))
     };
   }
