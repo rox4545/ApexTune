@@ -8,7 +8,7 @@ MCP server and basic widgets.
 - `calculator` module with tools, resources, and prompts
 - TypeScript + Zod validation setup
 - Widget-ready project structure
-- Production-friendly npm scripts
+- Production-friendly npm script
 
 ## Quick Start
 
