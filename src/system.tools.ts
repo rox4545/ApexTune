@@ -1,4 +1,4 @@
-import { ToolDecorator as Tool, z } from '@nitrostack/core';
+import { ToolDecorator as Tool,Widget, z } from '@nitrostack/core';
 import si from 'systeminformation';
 import { exec } from 'child_process';
 import { promisify } from 'util';
@@ -79,6 +79,7 @@ export class SystemTools {
     description: 'One-shot dashboard: CPU load, RAM usage, disk usage, and GPU load in a single call. Good for a quick health snapshot.',
     inputSchema: z.object({})
   })
+  @Widget('system-overview')
   async systemOverview() {
     const [load, mem, fsSize, graphics] = await Promise.all([
       si.currentLoad(),
@@ -118,19 +119,46 @@ export class SystemTools {
       }))
     };
   }
+  private static readonly CRITICAL_PROCESSES: Record<string, string> = {
+    'explorer.exe': 'This is the Windows shell — killing it will make your taskbar and desktop icons disappear temporarily. If your goal is to fix a frozen taskbar, use restart_explorer instead, which does this safely and reopens Explorer automatically.',
+    'winlogon.exe': 'This handles Windows sign-in — killing it can force a broken session or unexpected logout.',
+    'csrss.exe': 'This is a core Windows subsystem process — killing it will likely crash or freeze the entire system immediately.',
+    'wininit.exe': 'This is a core Windows initialization process — killing it can cause a crash or forced restart.',
+    'services.exe': 'This manages all Windows services — killing it will crash the system.',
+    'lsass.exe': 'This handles Windows security/login — killing it will force an immediate system restart.',
+    'smss.exe': 'This is the Windows session manager — killing it will crash the system.',
+    'svchost.exe': 'This process hosts multiple critical Windows services — killing the wrong instance can crash the system.'
+  };
 
-  @Tool({
+  
+   @Tool({
     name: 'kill_process',
-    description: 'Kills a Windows process by name to free up memory/CPU. Requires confirm:true to actually execute — call once first to preview.',
+    description: 'Kills a Windows process by name to free up memory/CPU. Requires confirm:true. Known critical system processes (e.g. explorer.exe, lsass.exe) additionally require the user to type the exact process name in confirmationPhrase — this cannot be inferred or guessed by the assistant, it must come from the human.',
     inputSchema: z.object({
       processName: z.string().describe('Name of the process (e.g., chrome.exe, spotify.exe)'),
-      confirm: z.boolean().default(false).describe('Set true to actually kill the process')
+      confirm: z.boolean().default(false).describe('Set true to actually kill the process'),
+      confirmationPhrase: z.string().optional().describe('For critical system processes only: the user must type the exact process name (e.g. "explorer.exe") to prove they read the warning')
     })
   })
-  async killProcess({ processName, confirm }: { processName: string; confirm: boolean }) {
+  async killProcess({ processName, confirm, confirmationPhrase }: { processName: string; confirm: boolean; confirmationPhrase?: string }) {
+    const normalized = processName.toLowerCase();
+    const risk = SystemTools.CRITICAL_PROCESSES[normalized];
+
+    if (risk) {
+      const typedCorrectly = confirmationPhrase?.trim().toLowerCase() === normalized;
+      if (!typedCorrectly) {
+        return {
+          preview: true,
+          warning: true,
+          message: `⚠️ STOP: "${processName}" is a critical system process. ${risk}\n\nTo proceed anyway, the user must explicitly type the process name "${processName}" themselves — please ask them directly and do not fill this in on their behalf. Once they've typed it, call this tool again with confirmationPhrase set to exactly what they typed.`
+        };
+      }
+    }
+
     if (!confirm) {
       return { preview: true, message: `This will forcibly kill ALL processes named "${processName}". Any unsaved work in that app will be lost. Call again with confirm:true to proceed.` };
     }
+
     try {
       await execAsync(`taskkill /F /IM ${processName}`);
       return { message: `Successfully killed ${processName}.` };

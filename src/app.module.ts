@@ -4,13 +4,15 @@ import { StartupTools } from './startup.tools';
 import { CleanupTools } from './cleanup.tools';
 import { NetworkTools } from './network.tools';
 import { BoostTools } from './boost.tools';
-
+import { PromptsController } from './prompts.tools';
 @McpApp({
   module: AppModule,
   server: { name: 'apextune-server', version: '1.0.0' }
 })
 @Module({
   name: 'AppModule',
-  controllers: [SystemTools, StartupTools, CleanupTools, NetworkTools, BoostTools],
+  controllers: [SystemTools, StartupTools, CleanupTools, NetworkTools, BoostTools, PromptsController],
 })
 export class AppModule {}
+
+
