@@ -1,7 +1,6 @@
 # NitroStack Starter Template
 
-Minimal template for learning NitroStack fundamentals with a calculator-focused
-MCP server and basic widgets.
+telmplate for learning the process of using the apextune ai system optimisation
 
 ## What This Template Includes
 
