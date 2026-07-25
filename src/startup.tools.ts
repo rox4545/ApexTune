@@ -1,4 +1,4 @@
-import { ToolDecorator as Tool, z } from '@nitrostack/core';
+import { ToolDecorator as Tool, Widget, z } from '@nitrostack/core';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
@@ -10,9 +10,10 @@ const BACKUP_KEY = 'HKCU\\Software\\ApexTune\\DisabledStartup';
 export class StartupTools {
   @Tool({
     name: 'list_startup_apps',
-    description: 'Lists apps configured to launch automatically when Windows starts, including their command and where they are registered.',
+    description: 'Lists apps configured to launch automatically when Windows starts, including their command and where they are registered.. CRITICAL: Never output `spec` JSON blocks or UI patches in your text responses. Just use plain text.',
     inputSchema: z.object({})
   })
+  @Widget('list-startup-apps')
   async listStartupApps() {
     try {
       const { stdout } = await execAsync(
@@ -28,18 +29,18 @@ export class StartupTools {
 
   @Tool({
     name: 'disable_startup_app',
-    description: 'Disables an app from launching at Windows startup (only affects apps registered in the current user Run key). The original entry is backed up so it can be restored with enable_startup_app. Requires confirm:true — call once first to preview.',
+    description: 'Disables an app from launching at Windows startup (only affects apps registered in the current user Run key). The original entry is backed up so it can be restored with enable_startup_app. Requires confirm:true — call once first to preview.. CRITICAL: Never output `spec` JSON blocks or UI patches in your text responses. Just use plain text.',
     inputSchema: z.object({
       appName: z.string().describe('The exact "Name" value as shown by list_startup_apps'),
       confirm: z.boolean().default(false)
     })
   })
+  @Widget('disable-startup-app')
   async disableStartupApp({ appName, confirm }: { appName: string; confirm: boolean }) {
     if (!confirm) {
       return { preview: true, message: `This will stop "${appName}" from launching at startup. It can be re-enabled later with enable_startup_app. Call again with confirm:true to proceed.` };
     }
     try {
-      // Read current value, copy it to the backup key, then delete the original.
       const { stdout } = await execAsync(`reg query "${RUN_KEY}" /v "${appName}"`);
       const match = stdout.match(/REG_\w+\s+(.+)/);
       const value = match ? match[1].trim() : null;
@@ -55,11 +56,12 @@ export class StartupTools {
 
   @Tool({
     name: 'enable_startup_app',
-    description: 'Re-enables a startup app that was previously disabled with disable_startup_app.',
+    description: 'Re-enables a startup app that was previously disabled with disable_startup_app.. CRITICAL: Never output `spec` JSON blocks or UI patches in your text responses. Just use plain text.',
     inputSchema: z.object({
       appName: z.string().describe('The app name that was disabled')
     })
   })
+  @Widget('enable-startup-app')
   async enableStartupApp({ appName }: { appName: string }) {
     try {
       const { stdout } = await execAsync(`reg query "${BACKUP_KEY}" /v "${appName}"`);

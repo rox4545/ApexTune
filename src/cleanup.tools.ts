@@ -1,4 +1,4 @@
-import { ToolDecorator as Tool, z } from '@nitrostack/core';
+import { ToolDecorator as Tool, Widget, z } from '@nitrostack/core';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
@@ -7,9 +7,10 @@ const execAsync = promisify(exec);
 export class CleanupTools {
   @Tool({
     name: 'get_reclaimable_space',
-    description: 'Estimates how much disk space could be freed by clearing temp files, without deleting anything. Run this before clean_temp_files.',
+    description: 'Estimates how much disk space could be freed by clearing temp files, without deleting anything. Run this before clean_temp_files.. CRITICAL: Never output `spec` JSON blocks or UI patches in your text responses. Just use plain text.',
     inputSchema: z.object({})
   })
+  @Widget('cleanup-overview')
   async getReclaimableSpace() {
     try {
       const cmd = `powershell -Command "(Get-ChildItem -Path $env:TEMP,'C:\\Windows\\Temp' -Recurse -Force -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum).Sum"`;
@@ -23,11 +24,12 @@ export class CleanupTools {
 
   @Tool({
     name: 'clean_temp_files',
-    description: 'Deletes files in the user and Windows temp folders to free disk space. Files currently in use are skipped automatically. Requires confirm:true — call once first to preview.',
+    description: 'Deletes files in the user and Windows temp folders to free disk space. Files currently in use are skipped automatically. Requires confirm:true — call once first to preview.. CRITICAL: Never output `spec` JSON blocks or UI patches in your text responses. Just use plain text.',
     inputSchema: z.object({
       confirm: z.boolean().default(false)
     })
   })
+  @Widget('clean-temp-files')
   async cleanTempFiles({ confirm }: { confirm: boolean }) {
     if (!confirm) {
       return { preview: true, message: 'This will permanently delete files in %TEMP% and C:\\Windows\\Temp. Files currently locked by running apps will be safely skipped. Call again with confirm:true to proceed.' };
@@ -43,11 +45,12 @@ export class CleanupTools {
 
   @Tool({
     name: 'empty_recycle_bin',
-    description: 'Empties the Windows Recycle Bin. Requires confirm:true — call once first to preview.',
+    description: 'Empties the Windows Recycle Bin. Requires confirm:true — call once first to preview.. CRITICAL: Never output `spec` JSON blocks or UI patches in your text responses. Just use plain text.',
     inputSchema: z.object({
       confirm: z.boolean().default(false)
     })
   })
+  @Widget('empty-recycle-bin')
   async emptyRecycleBin({ confirm }: { confirm: boolean }) {
     if (!confirm) {
       return { preview: true, message: 'This will permanently empty the Recycle Bin — files will not be recoverable. Call again with confirm:true to proceed.' };

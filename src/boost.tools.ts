@@ -1,4 +1,4 @@
-import { ToolDecorator as Tool, z } from '@nitrostack/core';
+import { ToolDecorator as Tool, Widget, z } from '@nitrostack/core';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
@@ -7,11 +7,12 @@ const execAsync = promisify(exec);
 export class BoostTools {
   @Tool({
     name: 'set_power_plan',
-    description: 'Switches the active Windows power plan. "high_performance" uncaps CPU throttling for max speed (uses more power/heat); "balanced" is the default; "power_saver" extends battery life on laptops. Most people never touch this even though it has a real, immediate performance impact.',
+    description: 'Switches the active Windows power plan. "high_performance" uncaps CPU throttling for max speed (uses more power/heat); "balanced" is the default; "power_saver" extends battery life on laptops. Most people never touch this even though it has a real, immediate performance impact.. CRITICAL: Never output `spec` JSON blocks or UI patches in your text responses. Just use plain text.',
     inputSchema: z.object({
       plan: z.enum(['high_performance', 'balanced', 'power_saver'])
     })
   })
+  @Widget('power-plan')
   async setPowerPlan({ plan }: { plan: string }) {
     const guids: Record<string, string> = {
       high_performance: '8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c',
@@ -28,9 +29,10 @@ export class BoostTools {
 
   @Tool({
     name: 'get_battery_report',
-    description: 'Generates a detailed battery health report (design capacity vs. current full-charge capacity, charge cycles, usage history) via Windows\' built-in powercfg tool — most laptop owners never realize this exists. Saves an HTML report and returns its path.',
+    description: 'Generates a detailed battery health report (design capacity vs. current full-charge capacity, charge cycles, usage history) via Windows\' built-in powercfg tool — most laptop owners never realize this exists. Saves an HTML report and returns its path.. CRITICAL: Never output `spec` JSON blocks or UI patches in your text responses. Just use plain text.',
     inputSchema: z.object({})
   })
+  @Widget('battery-report')
   async getBatteryReport() {
     const path = 'C:\\ApexTune\\battery-report.html';
     try {
@@ -44,11 +46,12 @@ export class BoostTools {
 
   @Tool({
     name: 'restart_explorer',
-    description: 'Restarts the Windows Explorer process (windows.exe / taskbar / file explorer). Fixes a frozen taskbar, unresponsive Start menu, or ghost icons without a full reboot — a classic tech-support trick. Requires confirm:true — call once first to preview.',
+    description: 'Restarts the Windows Explorer process (windows.exe / taskbar / file explorer). Fixes a frozen taskbar, unresponsive Start menu, or ghost icons without a full reboot — a classic tech-support trick. Requires confirm:true — call once first to preview.. CRITICAL: Never output `spec` JSON blocks or UI patches in your text responses. Just use plain text.',
     inputSchema: z.object({
       confirm: z.boolean().default(false)
     })
   })
+  @Widget('restart-explorer')
   async restartExplorer({ confirm }: { confirm: boolean }) {
     if (!confirm) {
       return { preview: true, message: 'This will briefly close and relaunch Windows Explorer — your taskbar and desktop icons will flicker for a second. Call again with confirm:true to proceed.' };
@@ -64,11 +67,12 @@ export class BoostTools {
 
   @Tool({
     name: 'clear_icon_cache',
-    description: 'Clears the Windows icon cache and rebuilds it on next Explorer restart. Fixes generic/blank/wrong desktop and taskbar icons — a well-known trick among power users but almost unheard of otherwise. Requires confirm:true — call once first to preview.',
+    description: 'Clears the Windows icon cache and rebuilds it on next Explorer restart. Fixes generic/blank/wrong desktop and taskbar icons — a well-known trick among power users but almost unheard of otherwise. Requires confirm:true — call once first to preview.. CRITICAL: Never output `spec` JSON blocks or UI patches in your text responses. Just use plain text.',
     inputSchema: z.object({
       confirm: z.boolean().default(false)
     })
   })
+  @Widget('clear-icon-cache')
   async clearIconCache({ confirm }: { confirm: boolean }) {
     if (!confirm) {
       return { preview: true, message: 'This will delete the cached icon database and restart Explorer to rebuild it. Call again with confirm:true to proceed.' };
@@ -85,9 +89,10 @@ export class BoostTools {
 
   @Tool({
     name: 'turbo_boost',
-    description: 'A one-shot "game/work mode": switches to the high-performance power plan and reports current CPU/RAM headroom, so you can see the effect immediately. Does not kill anything on its own — pair it with kill_process or list_top_processes if you want to free up more resources first.',
+    description: 'A one-shot "game/work mode": switches to the high-performance power plan and reports current CPU/RAM headroom, so you can see the effect immediately. Does not kill anything on its own — pair it with kill_process or list_top_processes if you want to free up more resources first.. CRITICAL: Never output `spec` JSON blocks or UI patches in your text responses. Just use plain text.',
     inputSchema: z.object({})
   })
+  @Widget('turbo-boost')
   async turboBoost() {
     try {
       await execAsync('powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c');

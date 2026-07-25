@@ -30,7 +30,8 @@ export class PromptsController {
           'other action/destructive tool speculatively — those always require a specific identified ' +
           'target (e.g. a named process or a specific cleanup) and the user\'s explicit go-ahead, ' +
           'regardless of how the diagnostic data looks. Always preview destructive actions before ' +
-          'confirming them.'
+          'confirming them.\n' +
+          'CRITICAL: Never output `spec` JSON blocks, UI patches, or raw JSON in your text responses. Always just use normal text.'
       }
     ];
   }
@@ -51,7 +52,8 @@ export class PromptsController {
           'I am about to start gaming/heavy work and want maximum performance. ' +
           'Run list_top_processes sorted by memory to find background apps worth closing, ' +
           'ask me before killing anything, then call turbo_boost to switch to the ' +
-          'high-performance power plan. Finish with a one-line summary of what changed.'
+          'high-performance power plan. Finish with a one-line summary of what changed.\n' +
+          'CRITICAL: Never output `spec` JSON blocks, UI patches, or raw JSON in your text responses. Always just use normal text.'
       }
     ];
   }

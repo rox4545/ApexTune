@@ -10,9 +10,10 @@ export class SystemTools {
 
   @Tool({
     name: 'check_memory',
-    description: 'Checks current system RAM usage.',
+    description: 'Checks current system RAM usage.. CRITICAL: Never output `spec` JSON blocks or UI patches in your text responses. Just use plain text.. CRITICAL: Never output `spec` JSON blocks or UI patches in your text responses. Just use plain text.',
     inputSchema: z.object({})
   })
+  @Widget('check-memory')
   async checkMemory() {
     const mem = await si.mem();
     const totalGB = (mem.total / 1024 ** 3).toFixed(2);
@@ -22,9 +23,10 @@ export class SystemTools {
 
   @Tool({
     name: 'check_cpu',
-    description: 'Checks current CPU load, core count, speed, and temperature (if sensors are available).',
+    description: 'Checks current CPU load, core count, speed, and temperature (if sensors are available).. CRITICAL: Never output `spec` JSON blocks or UI patches in your text responses. Just use plain text.. CRITICAL: Never output `spec` JSON blocks or UI patches in your text responses. Just use plain text.',
     inputSchema: z.object({})
   })
+  @Widget('check-cpu')
   async checkCpu() {
     const [load, info, temp] = await Promise.all([
       si.currentLoad(),
@@ -42,9 +44,10 @@ export class SystemTools {
 
   @Tool({
     name: 'check_gpu',
-    description: 'Checks GPU model, VRAM, load, and temperature for each graphics card detected.',
+    description: 'Checks GPU model, VRAM, load, and temperature for each graphics card detected.. CRITICAL: Never output `spec` JSON blocks or UI patches in your text responses. Just use plain text.. CRITICAL: Never output `spec` JSON blocks or UI patches in your text responses. Just use plain text.',
     inputSchema: z.object({})
   })
+  @Widget('check-gpu')
   async checkGpu() {
     const graphics = await si.graphics();
     return {
@@ -59,9 +62,10 @@ export class SystemTools {
 
   @Tool({
     name: 'check_disk',
-    description: 'Checks disk usage (used/free/total space) for every mounted drive.',
+    description: 'Checks disk usage (used/free/total space) for every mounted drive.. CRITICAL: Never output `spec` JSON blocks or UI patches in your text responses. Just use plain text.. CRITICAL: Never output `spec` JSON blocks or UI patches in your text responses. Just use plain text.',
     inputSchema: z.object({})
   })
+  @Widget('check-disk')
   async checkDisk() {
     const layout = await si.fsSize();
     return {
@@ -76,7 +80,7 @@ export class SystemTools {
 
   @Tool({
     name: 'system_overview',
-    description: 'One-shot dashboard: CPU load, RAM usage, disk usage, and GPU load in a single call. Good for a quick health snapshot.',
+    description: 'One-shot dashboard: CPU load, RAM usage, disk usage, and GPU load in a single call. Good for a quick health snapshot.. CRITICAL: Never output `spec` JSON blocks or UI patches in your text responses. Just use plain text.. CRITICAL: Never output `spec` JSON blocks or UI patches in your text responses. Just use plain text.',
     inputSchema: z.object({})
   })
   @Widget('system-overview')
@@ -99,12 +103,13 @@ export class SystemTools {
 
   @Tool({
     name: 'list_top_processes',
-    description: 'Lists the top N running processes sorted by CPU or memory usage.',
+    description: 'Lists the top N running processes sorted by CPU or memory usage.. CRITICAL: Never output `spec` JSON blocks or UI patches in your text responses. Just use plain text.. CRITICAL: Never output `spec` JSON blocks or UI patches in your text responses. Just use plain text.',
     inputSchema: z.object({
       sortBy: z.enum(['cpu', 'memory']).default('cpu').describe('Metric to sort by'),
       limit: z.number().int().min(1).max(50).default(10).describe('How many processes to return')
     })
   })
+  @Widget('top-processes')
   async listTopProcesses({ sortBy, limit }: { sortBy: 'cpu' | 'memory'; limit: number }) {
     const data = await si.processes();
     const sorted = [...data.list].sort((a, b) =>
@@ -131,15 +136,16 @@ export class SystemTools {
   };
 
   
-   @Tool({
+  @Tool({
     name: 'kill_process',
-    description: 'Kills a Windows process by name to free up memory/CPU. Requires confirm:true. Known critical system processes (e.g. explorer.exe, lsass.exe) additionally require the user to type the exact process name in confirmationPhrase — this cannot be inferred or guessed by the assistant, it must come from the human.',
+    description: 'Kills a Windows process by name to free up memory/CPU. Requires confirm:true. Known critical system processes (e.g. explorer.exe, lsass.exe) additionally require the user to type the exact process name in confirmationPhrase — this cannot be inferred or guessed by the assistant, it must come from the human.. CRITICAL: Never output `spec` JSON blocks or UI patches in your text responses. Just use plain text.. CRITICAL: Never output `spec` JSON blocks or UI patches in your text responses. Just use plain text.',
     inputSchema: z.object({
       processName: z.string().describe('Name of the process (e.g., chrome.exe, spotify.exe)'),
       confirm: z.boolean().default(false).describe('Set true to actually kill the process'),
       confirmationPhrase: z.string().optional().describe('For critical system processes only: the user must type the exact process name (e.g. "explorer.exe") to prove they read the warning')
     })
   })
+  @Widget('kill-process')
   async killProcess({ processName, confirm, confirmationPhrase }: { processName: string; confirm: boolean; confirmationPhrase?: string }) {
     const normalized = processName.toLowerCase();
     const risk = SystemTools.CRITICAL_PROCESSES[normalized];
@@ -169,13 +175,14 @@ export class SystemTools {
 
   @Tool({
     name: 'set_process_priority',
-    description: 'Changes the OS scheduling priority of a running process (e.g., set a game to High priority for smoother performance, or a background app to Low so it stops competing for CPU). A lesser-known but genuinely effective tuning trick.',
+    description: 'Changes the OS scheduling priority of a running process (e.g., set a game to High priority for smoother performance, or a background app to Low so it stops competing for CPU). A lesser-known but genuinely effective tuning trick.. CRITICAL: Never output `spec` JSON blocks or UI patches in your text responses. Just use plain text.. CRITICAL: Never output `spec` JSON blocks or UI patches in your text responses. Just use plain text.',
     inputSchema: z.object({
       processName: z.string().describe('Name of the process (e.g., game.exe)'),
       priority: z.enum(['low', 'belownormal', 'normal', 'abovenormal', 'high', 'realtime'])
         .describe('New priority level. Avoid "realtime" unless you know what you are doing — it can freeze the system.')
     })
   })
+  @Widget('set-process-priority')
   async setProcessPriority({ processName, priority }: { processName: string; priority: string }) {
     const priorityMap: Record<string, string> = {
       low: 'IDLE', belownormal: 'BELOWNORMAL', normal: 'NORMAL',
