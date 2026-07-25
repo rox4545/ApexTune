@@ -1,81 +1,79 @@
-# ApexTune
+# ApexTune — an MCP server that gives AI assistants real control over Windows PC performance
 
-An MCP server that gives AI assistants direct tools to monitor, clean, and tune a Windows PC.
+> ApexTune connects an AI assistant directly to your Windows system's CPU, RAM, GPU, disk, network, startup apps, and power settings — turning vague requests like "my PC feels slow" into real diagnosis and real fixes.
 
-Instead of offering generic troubleshooting advice, an assistant connected to ApexTune can inspect real system data — CPU, RAM, GPU, disk, running processes, network — and take corrective action directly, with safety checks built in for anything destructive.
+![Model Context Protocol](https://img.shields.io/badge/Model%20Context%20Protocol-MCP-blue) ![Built with Nitrostack](https://img.shields.io/badge/Built%20with-Nitrostack-0A66FF) ![Platform](https://img.shields.io/badge/platform-Windows-0078D6) ![Status](https://img.shields.io/badge/status-hackathon%20build-orange)
 
-Built with [NitroStack](https://nitrostack.ai) for the Agentic AI Hackathon 2026.
+**ApexTune** is an [MCP (Model Context Protocol)](https://nitrostack.ai) server that extends AI assistants — like Claude, Cursor, Copilot, and any MCP-compatible client — with real, safety-guarded system-tuning capabilities on Windows. It is built with [Nitrostack](https://nitrostack.ai), a framework for building and shipping MCP apps.
 
----
+Built for the **Agentic AI Hackathon 2026**.
+
+## Table of Contents
+
+- [Overview](#overview)
+- [What is MCP?](#what-is-mcp)
+- [Features](#features)
+- [Safety Model](#safety-model)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+- [Connect to an MCP Client](#connect-to-an-mcp-client)
+- [Project Structure](#project-structure)
+- [FAQ](#faq)
+- [Team](#team)
+- [Keywords](#keywords)
+- [License](#license)
 
 ## Overview
 
-ApexTune exposes a set of MCP tools and guided prompts that let a connected assistant (Claude, Copilot, Cursor, Gemini, or any MCP-compatible client) diagnose and resolve common Windows performance issues on request — for example, identifying and closing resource-heavy processes, freeing disk space, managing startup applications, or switching power plans before a gaming or work session.
+Most people troubleshoot a slow or misbehaving PC by guessing — closing a few random apps, restarting, or Googling generic advice. ApexTune replaces the guesswork with data. It gives an AI assistant direct, structured access to a Windows machine's live vitals — CPU load and temperature, RAM usage, GPU utilization, disk space, network throughput and latency — plus the ability to act: kill a runaway process, switch power plans, clean temp files, manage startup apps, and more.
 
----
+Ask the assistant something like *"why is my PC slow?"* and it can run a full diagnostic sweep before answering. Ask it to *"get my PC ready for gaming"* and it can free up memory and switch to a high-performance power plan in one step. Every action that changes or deletes something requires an explicit confirmation, so the assistant never takes a destructive step silently.
+
+## What is MCP?
+
+The **Model Context Protocol (MCP)** is an open standard that lets AI assistants securely connect to external tools, data sources, and services. Instead of being limited to what it was trained on, an AI model can call **MCP servers** to fetch live data and take real actions.
+
+ApexTune is one such MCP server, purpose-built for Windows system monitoring and tuning. Learn more about building and shipping MCP apps at [nitrostack.ai](https://nitrostack.ai).
 
 ## Features
 
-### System Monitoring
-- CPU load, core count, speed, and temperature
-- RAM usage
-- GPU model, VRAM, load, and temperature
-- Disk usage across all mounted drives
-- Consolidated `system_overview` dashboard with a visual widget
-- Top processes by CPU or memory usage
+- 🖥️ **System monitoring** — CPU load/temperature, RAM usage, GPU load/VRAM/temperature, disk usage across all drives, and a one-shot `system_overview` dashboard with a visual widget
+- 🧠 **Process management** — list top processes by CPU/memory, kill a process by name, or change its scheduling priority
+- 🌐 **Network diagnostics** — check adapters and throughput, ping for latency/packet loss, flush the DNS cache
+- 🚀 **Performance boost** — switch power plans, run a one-shot `turbo_boost` mode, generate a battery health report, restart Explorer or clear the icon cache
+- 🧹 **Cleanup tools** — estimate reclaimable space, clean temp files, empty the Recycle Bin
+- 🔌 **Startup manager** — list, disable, and re-enable startup apps, with automatic backup for reversibility
+- 🧭 **Guided prompts** — `diagnose_slow_pc` and `pre_gaming_boost` walk the assistant through a safe, structured routine instead of acting speculatively
+- 🔐 **Confirmation-gated actions** — every destructive tool previews its effect first and requires `confirm: true`; killing critical Windows processes additionally requires the user to type the exact process name themselves
 
-### Process Control
-- Kill a process by name, with a mandatory preview and confirmation step
-- Additional protection for critical system processes (e.g. `explorer.exe`, `lsass.exe`) requiring explicit user confirmation
-- Adjust process scheduling priority
+## Safety Model
 
-### Network Diagnostics
-- Active network adapters and live throughput
-- Latency and packet loss testing (ping)
-- DNS cache flush
+ApexTune is designed so an AI assistant can act on a real system without acting recklessly:
 
-### Performance Tuning
-- Switch power plans (High Performance / Balanced / Power Saver)
-- One-shot performance mode (`turbo_boost`) for gaming or heavy workloads
-- Battery health report generation
-- Explorer restart and icon cache repair (fixes frozen taskbar, broken icons)
-
-### Cleanup
-- Estimate reclaimable disk space from temporary files
-- Clean temporary files (in-use files are safely skipped)
-- Empty the Recycle Bin
-
-### Startup Management
-- List applications configured to launch at startup
-- Disable or re-enable a startup application, with automatic backup for reversibility
-
-### Guided Prompts
-- `diagnose_slow_pc` — directs the assistant to gather diagnostic data (CPU, RAM, disk, processes) before taking any action
-- `pre_gaming_boost` — frees up resources and switches to a high-performance profile before a session
-
-All state-changing operations require an explicit `confirm: true` parameter. The assistant always previews the effect of an action before it is executed.
-
----
+- **Preview before action.** Destructive tools (killing a process, cleaning temp files, emptying the Recycle Bin, disabling a startup app) return a preview and require a follow-up call with `confirm: true`.
+- **Extra friction for critical processes.** Known critical system processes (`explorer.exe`, `lsass.exe`, `winlogon.exe`, `services.exe`, and others) cannot be killed on the assistant's judgment alone — the human must type the exact process name to confirm.
+- **Reversible where possible.** Disabling a startup app backs up its original registry value so it can be restored with `enable_startup_app`.
+- **Read-only first.** The guided prompts explicitly instruct the assistant to run diagnostics (`system_overview`, `list_top_processes`, `check_disk`) before ever suggesting or taking an action.
 
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Framework | [NitroStack](https://nitrostack.ai) (`@nitrostack/core`, `@nitrostack/cli`) |
+| MCP framework | [Nitrostack](https://nitrostack.ai) (`@nitrostack/core`, `@nitrostack/cli`) |
 | Language | TypeScript |
-| Validation | Zod |
-| System data | [`systeminformation`](https://systeminformation.io/) |
-| OS integration | PowerShell, `reg`, `taskkill`, `powercfg` via Node's `child_process` |
-| UI | Next.js-based widget (`system-overview`) rendered via the MCP Apps spec |
-| Protocol | Model Context Protocol (MCP) — STDIO in development, STDIO + HTTP/SSE in production |
-
----
+| Schema validation | Zod |
+| System telemetry | [`systeminformation`](https://systeminformation.io/) |
+| OS integration | Windows PowerShell, `reg`, `taskkill`, `powercfg` via Node `child_process` |
+| Widgets | Next.js widget (`system-overview`) via the MCP Apps spec |
+| Transport | STDIO (development) / STDIO + HTTP-SSE (production) |
 
 ## Getting Started
 
 ### Prerequisites
-- Node.js
-- Windows OS (several tools depend on Windows-specific commands)
+
+- Node.js 18+
+- **Windows OS** (required — several tools call Windows-only commands such as `powercfg`, `reg`, and `taskkill`)
+- An MCP-compatible client (Claude Desktop, Cursor, NitroStudio, etc.)
 
 ### Installation
 
@@ -83,54 +81,95 @@ All state-changing operations require an explicit `confirm: true` parameter. The
 git clone https://github.com/rox4545/ApexTune.git
 cd ApexTune
 npm run install:all
-cp .env.example .env
-npm run dev
 ```
 
-### Available Scripts
+### Configuration
+
+Copy the example environment file and adjust values if needed:
 
 ```bash
-npm run dev          # start in development mode
-npm run build        # build for production
-npm start            # build and start
+cp .env.example .env
+```
+
+### Run
+
+```bash
+npm run dev          # development (STDIO)
+npm run build        # production build
+npm start             # build + start
 npm run start:prod   # start without rebuilding
 ```
 
-### Connecting to an Assistant
+## Connect to an MCP Client
 
-Point an MCP-compatible client at this server over STDIO for local development, or set `MCP_TRANSPORT_TYPE=dual` in `.env` to also expose it over HTTP/SSE in production.
+Add ApexTune to your MCP client configuration. A typical local (STDIO) entry looks like:
 
-[NitroStudio](https://nitrostack.ai/studio) is recommended for testing and debugging tool calls during development.
+```json
+{
+  "mcpServers": {
+    "apextune": {
+      "command": "npm",
+      "args": ["run", "start:prod"],
+      "cwd": "/path/to/ApexTune"
+    }
+  }
+}
+```
 
----
+Restart your client and ApexTune's tools and prompts will be available to your AI assistant. [NitroStudio](https://nitrostack.ai/studio) is the recommended way to test and debug tool calls during development.
 
 ## Project Structure
 
 ```
 src/
-├── index.ts              # Entry point — bootstraps the MCP server
-├── app.module.ts          # Registers all tool controllers
-├── system.tools.ts        # CPU, RAM, GPU, disk checks; process management
-├── network.tools.ts       # Network diagnostics
-├── boost.tools.ts         # Power plans, battery report, Explorer/icon repair
-├── cleanup.tools.ts       # Temp file cleanup, Recycle Bin
-├── startup.tools.ts       # Startup application management
-├── prompts.tools.ts       # Guided diagnostic and boost prompts
+├── index.ts              # entry point, bootstraps the MCP server
+├── app.module.ts          # registers all tool controllers
+├── system.tools.ts        # CPU/RAM/GPU/disk checks, process management
+├── network.tools.ts       # network checks, ping, DNS flush
+├── boost.tools.ts         # power plans, battery report, explorer/icon fixes
+├── cleanup.tools.ts       # temp file cleanup, recycle bin
+├── startup.tools.ts       # startup app management
+├── prompts.tools.ts       # guided diagnostic/boost prompts
 ├── health/
-│   └── system.health.ts   # Periodic health check
+│   └── system.health.ts   # periodic health check
 └── widgets/                # system-overview visual widget
 ```
 
----
+## FAQ
 
-## Safety
+### What is an MCP server?
 
-- ApexTune targets Windows only; several tools rely on Windows-specific system commands.
-- Every destructive action (killing a process, deleting temp files, emptying the Recycle Bin, disabling a startup app) returns a preview and requires explicit confirmation before executing.
-- Killing a known critical system process requires the user to type the exact process name themselves — this cannot be inferred or supplied automatically by the assistant.
+An MCP server implements the Model Context Protocol to expose tools, resources, and prompts that AI assistants can call, letting a model take real actions and access live data instead of relying only on its training.
 
----
+### What does ApexTune do?
+
+It gives an AI assistant direct visibility into a Windows PC's CPU, RAM, GPU, disk, and network state, along with guarded tools to clean up, boost performance, and manage startup apps.
+
+### Which AI clients does this work with?
+
+Any MCP-compatible client, including Claude Desktop, Cursor, and Copilot.
+
+### Is it safe to let an AI assistant run these tools?
+
+Yes — every action that modifies or deletes something requires an explicit confirmation step, and critical system processes have an additional manual confirmation requirement.
+
+### Does it work on macOS or Linux?
+
+Not currently. Several tools shell out to Windows-specific commands (`powercfg`, `reg`, `taskkill`), so ApexTune is Windows-only for now.
+
+## Team
+
+- <Your Name> — Role
+- <Teammate> — Role
+
+## Keywords
+
+`Agentic AI` · `MCP` · `Model Context Protocol` · `MCP server` · `Nitrostack` · `Windows system optimization` · `PC performance` · `AI agents` · `AI tools` · `Claude MCP` · `system monitoring` · `process management`
 
 ## License
 
-This project is licensed under the MIT License.
+<Add a license, e.g. MIT> © 2026
+
+---
+
+Built with ❤️ using the Model Context Protocol on [Nitrostack](https://nitrostack.ai).
