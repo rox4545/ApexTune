@@ -159,8 +159,10 @@ Not currently. Several tools shell out to Windows-specific commands (`powercfg`,
 
 ## Team
 
-- <Your Name> — Role
-- <Teammate> — Role
+- Rohan 
+- Manoj
+- Ravi teja
+- Suhas 
 
 ## Keywords
 
