@@ -1,8 +1,7 @@
-import { ToolDecorator as Tool, Widget, z, UseInterceptors } from '@nitrostack/core';
+import { ToolDecorator as Tool, Widget, z } from '@nitrostack/core';
 import si from 'systeminformation';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { LocalWindowsOnlyInterceptor } from './platform-guard.interceptor.js';
 
 const execAsync = promisify(exec);
 
@@ -13,7 +12,6 @@ export class NetworkTools {
     inputSchema: z.object({})
   })
   @Widget('check-network')
-  @UseInterceptors(LocalWindowsOnlyInterceptor)
   async checkNetwork() {
     const [interfaces, stats] = await Promise.all([si.networkInterfaces(), si.networkStats()]);
     const active = (Array.isArray(interfaces) ? interfaces : [interfaces]).filter((i: any) => i.operstate === 'up' && !i.internal);
@@ -35,7 +33,6 @@ export class NetworkTools {
     })
   })
   @Widget('check-latency')
-  @UseInterceptors(LocalWindowsOnlyInterceptor)
   async checkLatency({ host }: { host: string }) {
     try {
       const { stdout } = await execAsync(`ping -n 4 ${host}`);
@@ -53,7 +50,6 @@ export class NetworkTools {
     })
   })
   @Widget('flush-dns')
-  @UseInterceptors(LocalWindowsOnlyInterceptor)
   async flushDns({ confirm }: { confirm: boolean }) {
     if (!confirm) {
       return { preview: true, message: 'This will flush the DNS resolver cache. Safe, no data loss. Call again with confirm:true to proceed.' };

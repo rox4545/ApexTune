@@ -1,8 +1,7 @@
-import { ToolDecorator as Tool, Widget, z, UseInterceptors } from '@nitrostack/core';
+import { ToolDecorator as Tool,Widget, z } from '@nitrostack/core';
 import si from 'systeminformation';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { LocalWindowsOnlyInterceptor } from './platform-guard.interceptor.js';
 
 const execAsync = promisify(exec);
 
@@ -15,7 +14,6 @@ export class SystemTools {
     inputSchema: z.object({})
   })
   @Widget('check-memory')
-  @UseInterceptors(LocalWindowsOnlyInterceptor)
   async checkMemory() {
     const mem = await si.mem();
     const totalGB = (mem.total / 1024 ** 3).toFixed(2);
@@ -29,7 +27,6 @@ export class SystemTools {
     inputSchema: z.object({})
   })
   @Widget('check-cpu')
-  @UseInterceptors(LocalWindowsOnlyInterceptor)
   async checkCpu() {
     const [load, info, temp] = await Promise.all([
       si.currentLoad(),
@@ -51,7 +48,6 @@ export class SystemTools {
     inputSchema: z.object({})
   })
   @Widget('check-gpu')
-  @UseInterceptors(LocalWindowsOnlyInterceptor)
   async checkGpu() {
     const graphics = await si.graphics();
     return {
@@ -70,7 +66,6 @@ export class SystemTools {
     inputSchema: z.object({})
   })
   @Widget('check-disk')
-  @UseInterceptors(LocalWindowsOnlyInterceptor)
   async checkDisk() {
     const layout = await si.fsSize();
     return {
@@ -89,7 +84,6 @@ export class SystemTools {
     inputSchema: z.object({})
   })
   @Widget('system-overview')
-  @UseInterceptors(LocalWindowsOnlyInterceptor)
   async systemOverview() {
     const [load, mem, fsSize, graphics] = await Promise.all([
       si.currentLoad(),
@@ -116,7 +110,6 @@ export class SystemTools {
     })
   })
   @Widget('top-processes')
-  @UseInterceptors(LocalWindowsOnlyInterceptor)
   async listTopProcesses({ sortBy, limit }: { sortBy: 'cpu' | 'memory'; limit: number }) {
     const data = await si.processes();
     const sorted = [...data.list].sort((a, b) =>
@@ -153,7 +146,6 @@ export class SystemTools {
     })
   })
   @Widget('kill-process')
-  @UseInterceptors(LocalWindowsOnlyInterceptor)
   async killProcess({ processName, confirm, confirmationPhrase }: { processName: string; confirm: boolean; confirmationPhrase?: string }) {
     const normalized = processName.toLowerCase();
     const risk = SystemTools.CRITICAL_PROCESSES[normalized];
@@ -191,7 +183,6 @@ export class SystemTools {
     })
   })
   @Widget('set-process-priority')
-  @UseInterceptors(LocalWindowsOnlyInterceptor)
   async setProcessPriority({ processName, priority }: { processName: string; priority: string }) {
     const priorityMap: Record<string, string> = {
       low: 'IDLE', belownormal: 'BELOWNORMAL', normal: 'NORMAL',

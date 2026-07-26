@@ -1,7 +1,6 @@
-import { ToolDecorator as Tool, Widget, z, UseInterceptors } from '@nitrostack/core';
+import { ToolDecorator as Tool, Widget, z } from '@nitrostack/core';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { LocalWindowsOnlyInterceptor } from './platform-guard.interceptor.js';
 
 const execAsync = promisify(exec);
 
@@ -12,7 +11,6 @@ export class CleanupTools {
     inputSchema: z.object({})
   })
   @Widget('cleanup-overview')
-  @UseInterceptors(LocalWindowsOnlyInterceptor)
   async getReclaimableSpace() {
     try {
       const cmd = `powershell -Command "(Get-ChildItem -Path $env:TEMP,'C:\\Windows\\Temp' -Recurse -Force -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum).Sum"`;
@@ -32,7 +30,6 @@ export class CleanupTools {
     })
   })
   @Widget('clean-temp-files')
-  @UseInterceptors(LocalWindowsOnlyInterceptor)
   async cleanTempFiles({ confirm }: { confirm: boolean }) {
     if (!confirm) {
       return { preview: true, message: 'This will permanently delete files in %TEMP% and C:\\Windows\\Temp. Files currently locked by running apps will be safely skipped. Call again with confirm:true to proceed.' };
@@ -54,7 +51,6 @@ export class CleanupTools {
     })
   })
   @Widget('empty-recycle-bin')
-  @UseInterceptors(LocalWindowsOnlyInterceptor)
   async emptyRecycleBin({ confirm }: { confirm: boolean }) {
     if (!confirm) {
       return { preview: true, message: 'This will permanently empty the Recycle Bin — files will not be recoverable. Call again with confirm:true to proceed.' };

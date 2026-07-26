@@ -1,7 +1,6 @@
-import { ToolDecorator as Tool, Widget, z, UseInterceptors } from '@nitrostack/core';
+import { ToolDecorator as Tool, Widget, z } from '@nitrostack/core';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { LocalWindowsOnlyInterceptor } from './platform-guard.interceptor.js';
 
 const execAsync = promisify(exec);
 
@@ -15,7 +14,6 @@ export class StartupTools {
     inputSchema: z.object({})
   })
   @Widget('list-startup-apps')
-  @UseInterceptors(LocalWindowsOnlyInterceptor)
   async listStartupApps() {
     try {
       const { stdout } = await execAsync(
@@ -38,7 +36,6 @@ export class StartupTools {
     })
   })
   @Widget('disable-startup-app')
-  @UseInterceptors(LocalWindowsOnlyInterceptor)
   async disableStartupApp({ appName, confirm }: { appName: string; confirm: boolean }) {
     if (!confirm) {
       return { preview: true, message: `This will stop "${appName}" from launching at startup. It can be re-enabled later with enable_startup_app. Call again with confirm:true to proceed.` };
@@ -65,7 +62,6 @@ export class StartupTools {
     })
   })
   @Widget('enable-startup-app')
-  @UseInterceptors(LocalWindowsOnlyInterceptor)
   async enableStartupApp({ appName }: { appName: string }) {
     try {
       const { stdout } = await execAsync(`reg query "${BACKUP_KEY}" /v "${appName}"`);
