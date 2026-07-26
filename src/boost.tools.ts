@@ -1,6 +1,7 @@
-import { ToolDecorator as Tool, Widget, z } from '@nitrostack/core';
+import { ToolDecorator as Tool, Widget, z, UseInterceptors } from '@nitrostack/core';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { LocalWindowsOnlyInterceptor } from './platform-guard.interceptor.js';
 
 const execAsync = promisify(exec);
 
@@ -13,6 +14,7 @@ export class BoostTools {
     })
   })
   @Widget('power-plan')
+  @UseInterceptors(LocalWindowsOnlyInterceptor)
   async setPowerPlan({ plan }: { plan: string }) {
     const guids: Record<string, string> = {
       high_performance: '8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c',
@@ -33,6 +35,7 @@ export class BoostTools {
     inputSchema: z.object({})
   })
   @Widget('battery-report')
+  @UseInterceptors(LocalWindowsOnlyInterceptor)
   async getBatteryReport() {
     const path = 'C:\\ApexTune\\battery-report.html';
     try {
@@ -52,6 +55,7 @@ export class BoostTools {
     })
   })
   @Widget('restart-explorer')
+  @UseInterceptors(LocalWindowsOnlyInterceptor)
   async restartExplorer({ confirm }: { confirm: boolean }) {
     if (!confirm) {
       return { preview: true, message: 'This will briefly close and relaunch Windows Explorer — your taskbar and desktop icons will flicker for a second. Call again with confirm:true to proceed.' };
@@ -73,6 +77,7 @@ export class BoostTools {
     })
   })
   @Widget('clear-icon-cache')
+  @UseInterceptors(LocalWindowsOnlyInterceptor)
   async clearIconCache({ confirm }: { confirm: boolean }) {
     if (!confirm) {
       return { preview: true, message: 'This will delete the cached icon database and restart Explorer to rebuild it. Call again with confirm:true to proceed.' };
@@ -93,6 +98,7 @@ export class BoostTools {
     inputSchema: z.object({})
   })
   @Widget('turbo-boost')
+  @UseInterceptors(LocalWindowsOnlyInterceptor)
   async turboBoost() {
     try {
       await execAsync('powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c');
